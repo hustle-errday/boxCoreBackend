@@ -7,15 +7,18 @@ const competitionSchema = new mongoose.Schema({
     trim: true,
     required: true,
   },
-  startDate: {
+  type: {
     type: String,
     trim: true,
     required: true,
   },
+  startDate: {
+    type: String,
+    trim: true,
+  },
   endDate: {
     type: String,
     trim: true,
-    required: true,
   },
   description: {
     type: String,
@@ -25,12 +28,44 @@ const competitionSchema = new mongoose.Schema({
   registrationStartDate: {
     type: String,
     trim: true,
-    required: true,
   },
-  registrationEndDate: {
+  registrationDeadline: {
     type: String,
     trim: true,
-    required: true,
+  },
+  charge: {
+    type: Number,
+    trim: true,
+  },
+  chargeDeadline: {
+    type: String,
+    trim: true,
+  },
+  address: {
+    type: String,
+    trim: true,
+  },
+  banner: {
+    type: String,
+    trim: true,
+  },
+  organizer: {
+    type: String,
+    trim: true,
+  },
+  typeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "type",
+  },
+  categories: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "category",
+    },
+  ],
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "admin",
   },
   createdAt: {
     type: String,

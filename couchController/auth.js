@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 
 exports.signUp = asyncHandler(async (req, res, next) => {
   /*
-  #swagger.tags = ['Auth']
+  #swagger.tags = ['Coach auth']
   #swagger.summary = 'Sign up'
   #swagger.description = 'Sign up with phone number and password'
   #swagger.parameters['obj'] = {
@@ -23,12 +23,12 @@ exports.signUp = asyncHandler(async (req, res, next) => {
 
   const { phoneNo, firstName, lastName, password } = req.body;
 
-  const checkUser = await models.user.findOne({ phoneNo: phoneNo }).lean();
+  const checkUser = await models.coach.findOne({ phoneNo: phoneNo }).lean();
   if (checkUser) {
     throw new myError("Бүртгэлтэй хэрэглэгч байна.", 400);
   }
 
-  const userCreation = await models.user.create({
+  const userCreation = await models.coach.create({
     phoneNo,
     firstName,
     lastName,
@@ -47,7 +47,7 @@ exports.signUp = asyncHandler(async (req, res, next) => {
 
 exports.login = asyncHandler(async (req, res, next) => {
   /*
-  #swagger.tags = ['Auth']
+  #swagger.tags = ['Coach auth']
   #swagger.summary = 'Login'
   #swagger.description = 'Login with phone number and password'
   #swagger.parameters['obj'] = {
@@ -64,21 +64,21 @@ exports.login = asyncHandler(async (req, res, next) => {
   const { phoneNo, password } = req.body;
 
   if (!phoneNo || !password) {
-    throw new myError("Нууц үг эсвэл утасны дугаар байхгүй байна.", 400);
+    throw new myError("Утасны дугаар эсвэл нууц үгээ оруулна уу.", 400);
   }
 
-  const theUser = await models.user.findOne({ phoneNo: phoneNo });
-  if (!theUser) {
-    throw new myError("Утасны дугаар буруу байна.", 400);
+  const user = await models.coach.findOne({ phoneNo });
+  if (!user) {
+    throw new myError("Хэрэглэгч олдсонгүй.", 404);
   }
 
-  const isMatch = await theUser.matchPassword(password);
+  const isMatch = await user.matchPassword(password);
   if (!isMatch) {
     throw new myError("Нууц үг буруу байна.", 400);
   }
 
-  const accessToken = theUser.getAccessToken();
-  const refreshToken = theUser.getRefreshToken();
+  const accessToken = user.getAccessToken();
+  const refreshToken = user.getRefreshToken();
 
   res.status(200).json({
     success: true,
@@ -89,70 +89,66 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 exports.refreshToken = asyncHandler(async (req, res, next) => {
   /*
-  #swagger.tags = ['Auth']
+  #swagger.tags = ['Coach auth']
   #swagger.summary = 'Refresh token'
-  #swagger.description = 'Refresh access token with refresh token'
+  #swagger.description = 'Refresh token with refresh token'
   #swagger.parameters['refreshToken'] = {
     in: 'query',
     required: true,
   }
   */
 
-  const { refreshToken } = req.query;
+  const { refreshToken } = req.body;
 
   jwt.verify(refreshToken, process.env.REFRESH_SECRET, async (err, user) => {
     if (err) {
       throw new myError("Токен хүчингүй байна.", 400);
     }
 
-    const theUser = await models.user.findOne({ _id: user._id });
-    if (!theUser) {
+    const theCoach = await models.coach.findOne(user._id);
+    if (!theCoach) {
       throw new myError("Хэрэглэгч олдсонгүй.", 400);
     }
 
-    const accessToken = theUser.getAccessToken();
-    const refreshToken = theUser.getRefreshToken();
+    const accessToken = theCoach.getAccessToken();
+    const newRefreshToken = theCoach.getRefreshToken();
 
     res.status(200).json({
       success: true,
       accessToken,
-      refreshToken,
+      refreshToken: newRefreshToken,
     });
   });
 });
 
 exports.authenticate = asyncHandler(async (req, res, next) => {
   /*
-  #swagger.tags = ['Auth']
+  #swagger.tags = ['Coach auth']
   #swagger.summary = 'Authenticate'
-  #swagger.description = 'Authenticate user'
-  #swagger.parameters['authorization'] = {
-    in: 'header',
-    description: 'Bearer token',
+  #swagger.description = 'Authenticate user with access token'
+  #swagger.parameters['accessToken'] = {
+    in: 'query',
     required: true,
-    example: 'Bearer token'
   }
   */
 
-  const accessToken = req.headers.authorization.split(" ")[1];
-  if (!accessToken) {
-    throw new myError("Токен байхгүй байна.", 401);
-  }
+  const { accessToken } = req.body;
 
   jwt.verify(accessToken, process.env.JWT_SECRET, async (err, user) => {
     if (err) {
-      throw new myError("Токен хүчингүй байна.", 401);
+      throw new myError("Токен хүчингүй байна.", 400);
     }
 
     res.status(200).json({
       success: true,
+      user,
     });
   });
 });
 
 exports.resetPassword = asyncHandler(async (req, res, next) => {
   /*
-  #swagger.tags = ['Auth']
+  #swagger.tags = ['Coach auth']
   #swagger.summary = 'Reset password'
   #swagger.description = 'Reset password with phone number'
   #swagger.parameters['obj'] = {
@@ -161,20 +157,20 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
     required: true,
     schema: { 
       phoneNo: '94288008',
-      password: 'newPassword'
+      password: 'password' 
     }
   }
   */
 
   const { phoneNo, password } = req.body;
 
-  const theUser = await models.user.findOne({ phoneNo: phoneNo });
-  if (!theUser) {
-    throw new myError("Утасны дугаар буруу байна.", 400);
+  const user = await models.coach.findOne({ phoneNo });
+  if (!user) {
+    throw new myError("Хэрэглэгч олдсонгүй.", 404);
   }
 
-  theUser.password = password;
-  await theUser.save();
+  user.password = password;
+  await user.save();
 
   res.status(200).json({
     success: true,

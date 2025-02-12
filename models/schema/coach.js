@@ -3,12 +3,7 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const moment = require("moment-timezone");
 
-const adminSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    trim: true,
-    required: true,
-  },
+const coachSchema = new mongoose.Schema({
   phoneNo: {
     type: String,
     trim: true,
@@ -17,15 +12,23 @@ const adminSchema = new mongoose.Schema({
   password: {
     type: String,
     trim: true,
+    required: true,
+  },
+  firstName: {
+    type: String,
+    trim: true,
+  },
+  lastName: {
+    type: String,
+    trim: true,
+  },
+  club: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "club",
   },
   role: {
     type: String,
-    default: "admin",
-    enum: ["admin", "moderator"],
-  },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "admin",
+    trim: true,
   },
   createdAt: {
     type: String,
@@ -36,23 +39,21 @@ const adminSchema = new mongoose.Schema({
   },
 });
 
-adminSchema.index({ phoneNo: 1 }, { unique: true });
-adminSchema.pre("save", async function () {
+coachSchema.index({ phoneNo: 1 }, { unique: true });
+coachSchema.pre("save", async function () {
   if (this.isModified("password")) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hashSync(this.password, salt);
   }
 });
-adminSchema.methods.matchPassword = async function (enteredPassword) {
+coachSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
-adminSchema.methods.getAccessToken = function () {
+coachSchema.methods.getAccessToken = function () {
   return jwt.sign(
     {
       _id: this._id,
-      role: this.role,
-      phoneNo: this.phoneNo,
-      username: this.username,
+      club: this.club,
     },
     process.env.JWT_SECRET,
     {
@@ -60,13 +61,11 @@ adminSchema.methods.getAccessToken = function () {
     }
   );
 };
-adminSchema.methods.getRefreshToken = function () {
+coachSchema.methods.getRefreshToken = function () {
   return jwt.sign(
     {
       _id: this._id,
-      role: this.role,
-      phoneNo: this.phoneNo,
-      username: this.username,
+      club: this.club,
     },
     process.env.REFRESH_SECRET,
     {
@@ -75,4 +74,4 @@ adminSchema.methods.getRefreshToken = function () {
   );
 };
 
-module.exports = mongoose.model("admin", adminSchema);
+module.exports = mongoose.model("coach", coachSchema);

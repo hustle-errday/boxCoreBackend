@@ -14,5 +14,346 @@
   "schemes": [
     "http"
   ],
-  "paths": {}
+  "paths": {
+    "/auth/signup": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Sign up",
+        "description": "Sign up with phone number and password",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Sign up data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "phoneNo": {
+                  "type": "string",
+                  "example": "94288008"
+                },
+                "firstName": {
+                  "type": "string",
+                  "example": "Dodo"
+                },
+                "lastName": {
+                  "type": "string",
+                  "example": "Anujin"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "qwer123@"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login",
+        "description": "Login with phone number and password",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Login data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "phoneNo": {
+                  "type": "string",
+                  "example": "94288008"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "password"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/auth/refresh_token": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Refresh token",
+        "description": "Refresh access token with refresh token",
+        "parameters": [
+          {
+            "name": "refreshToken",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/auth/authenticate": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Authenticate",
+        "description": "Authenticate user",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token",
+            "required": true,
+            "example": "Bearer token",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/auth/reset_password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Reset password",
+        "description": "Reset password with phone number",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Reset password data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "phoneNo": {
+                  "type": "string",
+                  "example": "94288008"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "newPassword"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/auth/coach/signup": {
+      "post": {
+        "tags": [
+          "Coach auth"
+        ],
+        "summary": "Sign up",
+        "description": "Sign up with phone number and password",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Sign up data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "phoneNo": {
+                  "type": "string",
+                  "example": "94288008"
+                },
+                "firstName": {
+                  "type": "string",
+                  "example": "Dodo"
+                },
+                "lastName": {
+                  "type": "string",
+                  "example": "Anujin"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "qwer123@"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/auth/coach/login": {
+      "post": {
+        "tags": [
+          "Coach auth"
+        ],
+        "summary": "Login",
+        "description": "Login with phone number and password",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Login data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "phoneNo": {
+                  "type": "string",
+                  "example": "94288008"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "password"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/auth/coach/refresh_token": {
+      "get": {
+        "tags": [
+          "Coach auth"
+        ],
+        "summary": "Refresh token",
+        "description": "Refresh token with refresh token",
+        "parameters": [
+          {
+            "name": "refreshToken",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/auth/coach/authenticate": {
+      "get": {
+        "tags": [
+          "Coach auth"
+        ],
+        "summary": "Authenticate",
+        "description": "Authenticate user with access token",
+        "parameters": [
+          {
+            "name": "accessToken",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/auth/coach/reset_password": {
+      "post": {
+        "tags": [
+          "Coach auth"
+        ],
+        "summary": "Reset password",
+        "description": "Reset password with phone number",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Reset password data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "phoneNo": {
+                  "type": "string",
+                  "example": "94288008"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "password"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    }
+  }
 }

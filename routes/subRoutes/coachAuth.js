@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const {
-  signUp,
+  authenticate,
   login,
   refreshToken,
-  authenticate,
   resetPassword,
-} = require("../../controller/auth");
+  signUp,
+} = require("../../couchController/auth");
 const { body, query } = require("express-validator");
 const requestDataValidation = require("../../middleware/requestDataValidation");
 
@@ -14,8 +14,8 @@ router
   .route("/signup")
   .post(
     body("phoneNo").isString().notEmpty(),
-    body("firstName").isString().notEmpty(),
-    body("lastName").isString().notEmpty(),
+    body("firstName").isString().withMessage("Нэр буруу байна"),
+    body("lastName").isString().withMessage("Овог буруу байна"),
     body("password").isString().notEmpty(),
     requestDataValidation,
     signUp

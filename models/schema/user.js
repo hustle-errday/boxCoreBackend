@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  club: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "club",
+  },
   height: {
     type: Number,
     trim: true,
@@ -31,7 +35,7 @@ const userSchema = new mongoose.Schema({
   },
   age: {
     type: Number,
-    trim,
+    trim: true,
   },
   createdAt: {
     type: String,
