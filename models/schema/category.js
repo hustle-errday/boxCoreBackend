@@ -13,7 +13,7 @@ const categorySchema = new mongoose.Schema({
   },
   sex: {
     type: String,
-    enum: ["male", "female", "both"],
+    enum: ["male", "female"],
   },
   age: {
     type: String,

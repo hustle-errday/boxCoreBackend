@@ -14,6 +14,7 @@ exports.signUp = asyncHandler(async (req, res, next) => {
     required: true,
     schema: { 
       phoneNo: '94288008',
+      registrationNumber: 'FA02320509',
       firstName: 'Dodo',
       lastName: 'Anujin',
       password: 'qwer123@' 
@@ -21,15 +22,19 @@ exports.signUp = asyncHandler(async (req, res, next) => {
   }
   */
 
-  const { phoneNo, firstName, lastName, password } = req.body;
+  const { phoneNo, registrationNumber, firstName, lastName, password } =
+    req.body;
 
-  const checkUser = await models.user.findOne({ phoneNo: phoneNo }).lean();
+  const checkUser = await models.user
+    .findOne({ phoneNo: phoneNo, isActive: true })
+    .lean();
   if (checkUser) {
     throw new myError("Бүртгэлтэй хэрэглэгч байна.", 400);
   }
 
   const userCreation = await models.user.create({
     phoneNo,
+    registrationNumber,
     firstName,
     lastName,
     password,
@@ -67,9 +72,12 @@ exports.login = asyncHandler(async (req, res, next) => {
     throw new myError("Нууц үг эсвэл утасны дугаар байхгүй байна.", 400);
   }
 
-  const theUser = await models.user.findOne({ phoneNo: phoneNo });
+  const theUser = await models.user.findOne({
+    phoneNo: phoneNo,
+    isActive: true,
+  });
   if (!theUser) {
-    throw new myError("Утасны дугаар буруу байна.", 400);
+    throw new myError("Бүртгэлгүй хэрэглэгч байна.", 400);
   }
 
   const isMatch = await theUser.matchPassword(password);
@@ -105,7 +113,10 @@ exports.refreshToken = asyncHandler(async (req, res, next) => {
       throw new myError("Токен хүчингүй байна.", 400);
     }
 
-    const theUser = await models.user.findOne({ _id: user._id });
+    const theUser = await models.user.findOne({
+      _id: user._id,
+      isActive: true,
+    });
     if (!theUser) {
       throw new myError("Хэрэглэгч олдсонгүй.", 400);
     }
@@ -134,6 +145,10 @@ exports.authenticate = asyncHandler(async (req, res, next) => {
   }
   */
 
+  if (!req.headers.authorization) {
+    throw new myError("Токен байхгүй байна.", 401);
+  }
+
   const accessToken = req.headers.authorization.split(" ")[1];
   if (!accessToken) {
     throw new myError("Токен байхгүй байна.", 401);
@@ -141,7 +156,10 @@ exports.authenticate = asyncHandler(async (req, res, next) => {
 
   jwt.verify(accessToken, process.env.JWT_SECRET, async (err, user) => {
     if (err) {
-      throw new myError("Токен хүчингүй байна.", 401);
+      return res.status(401).json({
+        success: false,
+        message: "Токен хүчингүй байна.",
+      });
     }
 
     res.status(200).json({
@@ -168,7 +186,10 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 
   const { phoneNo, password } = req.body;
 
-  const theUser = await models.user.findOne({ phoneNo: phoneNo });
+  const theUser = await models.user.findOne({
+    phoneNo: phoneNo,
+    isActive: true,
+  });
   if (!theUser) {
     throw new myError("Утасны дугаар буруу байна.", 400);
   }

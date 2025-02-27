@@ -21,9 +21,22 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  registrationNumber: {
+    type: String,
+    trim: true,
+  },
+  sex: {
+    type: String,
+    enum: ["male", "female"],
+  },
   club: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "club",
+  },
+  role: {
+    type: String,
+    default: "athlete",
+    enum: ["athlete", "coach", "referee"],
   },
   height: {
     type: Number,
@@ -33,9 +46,17 @@ const userSchema = new mongoose.Schema({
     type: Number,
     trim: true,
   },
-  age: {
-    type: Number,
+  birthDate: {
+    type: String,
     trim: true,
+  },
+  imageUrl: {
+    type: String,
+    trim: true,
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
   },
   createdAt: {
     type: String,
@@ -60,7 +81,9 @@ userSchema.methods.getAccessToken = function () {
   return jwt.sign(
     {
       _id: this._id,
+      role: this.role,
       phoneNo: this.phoneNo,
+      imageUrl: this.imageUrl ?? "",
     },
     process.env.JWT_SECRET,
     {
@@ -72,7 +95,9 @@ userSchema.methods.getRefreshToken = function () {
   return jwt.sign(
     {
       _id: this._id,
+      role: this.role,
       phoneNo: this.phoneNo,
+      imageUrl: this.imageUrl ?? "",
     },
     process.env.REFRESH_SECRET,
     {

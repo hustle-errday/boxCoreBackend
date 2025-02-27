@@ -13,7 +13,12 @@ const requestDataValidation = require("../../middleware/requestDataValidation");
 router
   .route("/signup")
   .post(
-    body("phoneNo").isString().notEmpty(),
+    body("phoneNo")
+      .isString()
+      .isLength({ min: 8, max: 8 })
+      .withMessage("Утасны дугаар буруу байна")
+      .notEmpty(),
+    body("registrationNumber").isString().notEmpty(),
     body("firstName").isString().notEmpty(),
     body("lastName").isString().notEmpty(),
     body("password").isString().notEmpty(),
@@ -23,7 +28,11 @@ router
 router
   .route("/login")
   .post(
-    body("phoneNo").isString().notEmpty(),
+    body("phoneNo")
+      .isString()
+      .isLength({ min: 8, max: 8 })
+      .withMessage("Утасны дугаар буруу байна")
+      .notEmpty(),
     body("password").isString().notEmpty(),
     requestDataValidation,
     login
@@ -35,7 +44,11 @@ router.route("/authenticate").get(authenticate);
 router
   .route("/reset_password")
   .post(
-    body("phoneNo").isString().notEmpty(),
+    body("phoneNo")
+      .isString()
+      .isLength({ min: 8, max: 8 })
+      .withMessage("Утасны дугаар буруу байна")
+      .notEmpty(),
     body("password").isString().notEmpty(),
     requestDataValidation,
     resetPassword

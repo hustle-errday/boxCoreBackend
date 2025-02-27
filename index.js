@@ -8,13 +8,14 @@ var cors = require("cors");
 const fs = require("fs");
 const authRoutes = require("./routes/auth");
 const mainRoutes = require("./routes/mainRoutes");
+const publicRoutes = require("./routes/publicRoutes");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swaggerDoc.json");
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/error");
 const { authenticateRequest } = require("./middleware/validateRequest");
 
-dotenv.config({ path: "./config/config.env" });
+dotenv.config({ path: "./config/configProduction.env" });
 
 connectDB();
 
@@ -37,6 +38,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(cors());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/", publicRoutes);
 app.use("/auth", authRoutes);
 app.use("/api", authenticateRequest, mainRoutes);
 app.use(errorHandler);
