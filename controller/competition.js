@@ -24,7 +24,18 @@ exports.getCompetitions = asyncHandler(async (req, res, next) => {
   const { typeId } = req.query;
 
   const competitions = await models.competition
-    .find({ typeId: typeId }, { _id: 1, name: 1, banner: 1 })
+    .find(
+      { typeId: typeId },
+      {
+        _id: 1,
+        name: 1,
+        banner: 1,
+        startDate: 1,
+        endDate: 1,
+        registrationStartDate: 1,
+        registrationDeadline: 1,
+      }
+    )
     .populate("categories", "name")
     .sort({ _id: -1 })
     .lean();
