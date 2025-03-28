@@ -9,170 +9,12 @@
     },
     "version": "1.0.0"
   },
-  "host": "192.168.1.92:9000",
+  "host": "192.168.1.92:9006",
   "basePath": "/",
   "schemes": [
     "http"
   ],
   "paths": {
-    "/competition/": {
-      "get": {
-        "tags": [
-          "Competition"
-        ],
-        "summary": "Get all competitions",
-        "description": "Get all competitions",
-        "parameters": [
-          {
-            "name": "typeId",
-            "typeId": "_id",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/competition/detail": {
-      "get": {
-        "tags": [
-          "Competition"
-        ],
-        "summary": "Get competition detail",
-        "description": "Get competition detail",
-        "parameters": [
-          {
-            "name": "_id",
-            "_id": "5f1f0e7b1c9d440000d7e6f0",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/competition/activate": {
-      "put": {
-        "summary": "Re-activate account",
-        "description": "Re-activate account",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Re-activate account",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "phoneNo": {
-                  "type": "string",
-                  "example": "94288008"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/competition/participants": {
-      "get": {
-        "tags": [
-          "Competition"
-        ],
-        "summary": "Get all participants",
-        "description": "Get all participants",
-        "parameters": [
-          {
-            "name": "competitionId",
-            "competitionId": "5f1f0e7b1c9d440000d7e6f0",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/type/types": {
-      "get": {
-        "tags": [
-          "Type"
-        ],
-        "summary": "Get all types",
-        "description": "Get all types",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/club/": {
-      "get": {
-        "tags": [
-          "Club"
-        ],
-        "summary": "Get clubs",
-        "description": "Get clubs",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/club/detail": {
-      "get": {
-        "tags": [
-          "Club"
-        ],
-        "summary": "Get club detail",
-        "description": "Get club detail",
-        "parameters": [
-          {
-            "name": "_id",
-            "_id": "5f1f0e7b1c9d440000d7e6f0",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
     "/auth/signup": {
       "post": {
         "tags": [
@@ -347,6 +189,342 @@
           },
           "400": {
             "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/competition/": {
+      "get": {
+        "tags": [
+          "Competition"
+        ],
+        "summary": "Get all competitions",
+        "description": "Get all competitions",
+        "parameters": [
+          {
+            "name": "typeId",
+            "typeId": "_id",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/competition/detail": {
+      "get": {
+        "tags": [
+          "Competition"
+        ],
+        "summary": "Get competition detail",
+        "description": "Get competition detail",
+        "parameters": [
+          {
+            "name": "_id",
+            "_id": "5f1f0e7b1c9d440000d7e6f0",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/competition/activate": {
+      "put": {
+        "summary": "Re-activate account",
+        "description": "Re-activate account",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Re-activate account",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "phoneNo": {
+                  "type": "string",
+                  "example": "94288008"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/competition/participants": {
+      "get": {
+        "tags": [
+          "Competition"
+        ],
+        "summary": "Get all participants",
+        "description": "Get all participants",
+        "parameters": [
+          {
+            "name": "competitionId",
+            "competitionId": "5f1f0e7b1c9d440000d7e6f0",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/type/types": {
+      "get": {
+        "tags": [
+          "Type"
+        ],
+        "summary": "Get all types",
+        "description": "Get all types",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/club/": {
+      "get": {
+        "tags": [
+          "Club"
+        ],
+        "summary": "Get clubs",
+        "description": "Get clubs",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/club/detail": {
+      "get": {
+        "tags": [
+          "Club"
+        ],
+        "summary": "Get club detail",
+        "description": "Get club detail",
+        "parameters": [
+          {
+            "name": "_id",
+            "_id": "5f1f0e7b1c9d440000d7e6f0",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/club/join": {
+      "post": {
+        "tags": [
+          "Club"
+        ],
+        "summary": "Join club",
+        "description": "Join club",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "access token",
+            "required": true,
+            "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMiIsInJvbGUiOiJvd25lciIsInVzZXJuYW1lIjoiOTQyODgwMDgiLCJvcmdhbml6YXRpb25JZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMCIsImlhdCI6MTczNzk3NDg5MCwiZXhwIjoxNzM5MjcwODkwfQ.lQb4MH9jWY2-wzKCDgzWclUWKuipFFQm5E9sLmgY7T8",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "clubId": {
+                  "type": "string",
+                  "example": "5f1f0e7b1c9d440000d7e6f0"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/club/quit": {
+      "post": {
+        "tags": [
+          "Club"
+        ],
+        "summary": "Quit club",
+        "description": "Quit club",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "access token",
+            "required": true,
+            "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMiIsInJvbGUiOiJvd25lciIsInVzZXJuYW1lIjoiOTQyODgwMDgiLCJvcmdhbml6YXRpb25JZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMCIsImlhdCI6MTczNzk3NDg5MCwiZXhwIjoxNzM5MjcwODkwfQ.lQb4MH9jWY2-wzKCDgzWclUWKuipFFQm5E9sLmgY7T8",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/club/requests": {
+      "get": {
+        "tags": [
+          "Club"
+        ],
+        "summary": "Get requests",
+        "description": "Get requests",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "access token",
+            "required": true,
+            "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMiIsInJvbGUiOiJvd25lciIsInVzZXJuYW1lIjoiOTQyODgwMDgiLCJvcmdhbml6YXRpb25JZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMCIsImlhdCI6MTczNzk3NDg5MCwiZXhwIjoxNzM5MjcwODkwfQ.lQb4MH9jWY2-wzKCDgzWclUWKuipFFQm5E9sLmgY7T8",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/club/accept": {
+      "post": {
+        "tags": [
+          "Club"
+        ],
+        "summary": "Accept request",
+        "description": "Accept request",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "access token",
+            "required": true,
+            "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMiIsInJvbGUiOiJvd25lciIsInVzZXJuYW1lIjoiOTQyODgwMDgiLCJvcmdhbml6YXRpb25JZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMCIsImlhdCI6MTczNzk3NDg5MCwiZXhwIjoxNzM5MjcwODkwfQ.lQb4MH9jWY2-wzKCDgzWclUWKuipFFQm5E9sLmgY7T8",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string",
+                  "example": "5f1f0e7b1c9d440000d7e6f0"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/match/": {
+      "get": {
+        "tags": [
+          "Match"
+        ],
+        "summary": "Get all matches",
+        "description": "Get all matches",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "access token",
+            "required": true,
+            "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMiIsInJvbGUiOiJvd25lciIsInVzZXJuYW1lIjoiOTQyODgwMDgiLCJvcmdhbml6YXRpb25JZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMCIsImlhdCI6MTczNzk3NDg5MCwiZXhwIjoxNzM5MjcwODkwfQ.lQb4MH9jWY2-wzKCDgzWclUWKuipFFQm5E9sLmgY7T8",
+            "type": "string"
+          },
+          {
+            "name": "competitionId",
+            "competitionId": "aaanhn",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }

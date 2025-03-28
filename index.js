@@ -15,7 +15,7 @@ const connectDB = require("./config/db");
 const errorHandler = require("./middleware/error");
 const { authenticateRequest } = require("./middleware/validateRequest");
 
-dotenv.config({ path: "./config/configProduction.env" });
+dotenv.config({ path: "./config/config.env" });
 
 connectDB();
 
@@ -38,7 +38,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(cors());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-app.use("/", publicRoutes);
 app.use("/auth", authRoutes);
+app.use("/", publicRoutes);
 app.use("/api", authenticateRequest, mainRoutes);
 app.use(errorHandler);

@@ -5,14 +5,6 @@ const moment = require("moment-timezone");
 const jwt = require("jsonwebtoken");
 const { matchCategory } = require("../myFunctions/competitionHelper");
 
-/*
-Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2I0NDljZTc4MGI4Zjk3MGE0MThiODkiLCJyb2xlIjoiYXRobGV0ZSIsInBob25lTm8iOiI5OTg4MTEyMiIsImltYWdlVXJsIjoiIiwiaWF0IjoxNzQwNTYyNzE0LCJleHAiOjE3NDkyMDI3MTR9.PgGmTmLRkYRz5e0LOuTOVKvMlnXC3ntnYJfyGvJZLLA
-
-{
-  "competitionId": "67bd90cf53971d306154e853"
-}
-*/
-
 exports.getCompetitions = asyncHandler(async (req, res, next) => {
   /*
   #swagger.tags = ['Competition']
@@ -94,6 +86,7 @@ exports.getCompetitionDetail = asyncHandler(async (req, res, next) => {
     .findById({ _id: _id }, { __v: 0 })
     .populate("typeId", "name")
     .populate("categories", "name")
+    .populate("referees", "firstName lastName")
     .lean();
 
   if (!competition) {
@@ -122,6 +115,9 @@ exports.getCompetitionDetail = asyncHandler(async (req, res, next) => {
   competition.categories = competition.categories.map((item) => ({
     name: item.name,
     _id: item._id,
+  }));
+  competition.referees = competition.referees.map((item) => ({
+    name: `${item.firstName} ${item.lastName}`,
   }));
   competition.participants = {
     male: male,
@@ -325,7 +321,7 @@ exports.getAllParticipants = asyncHandler(async (req, res, next) => {
     }
     data[category].push({
       name: `${participants[i].userId.firstName} ${participants[i].userId.lastName}`,
-      imageUrl: participants[i].userId.imageUrl,
+      imageUrl: participants[i].userId.imageUrl ?? "",
     });
   }
 
