@@ -116,9 +116,11 @@ exports.getCompetitionDetail = asyncHandler(async (req, res, next) => {
     name: item.name,
     _id: item._id,
   }));
-  competition.referees = competition.referees.map((item) => ({
-    name: `${item.firstName} ${item.lastName}`,
-  }));
+  if (competition.referees) {
+    competition.referees = competition.referees.map((item) => ({
+      name: `${item.firstName} ${item.lastName}`,
+    }));
+  }
   competition.participants = {
     male: male,
     female: female,

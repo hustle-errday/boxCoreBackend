@@ -6,6 +6,11 @@ const requestDataValidation = require("../../middleware/requestDataValidation");
 
 router
   .route("/")
-  .get(query("competitionId"), requestDataValidation, getMatches);
+  .get(
+    query("competitionId").isMongoId(),
+    query("categoryId").isMongoId(),
+    requestDataValidation,
+    getMatches
+  );
 
 module.exports = router;

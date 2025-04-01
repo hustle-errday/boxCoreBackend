@@ -514,6 +514,12 @@
             "competitionId": "aaanhn",
             "in": "query",
             "type": "string"
+          },
+          {
+            "name": "categoryId",
+            "categoryId": "aaanhn",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
