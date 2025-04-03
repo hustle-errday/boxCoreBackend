@@ -243,6 +243,20 @@
         }
       }
     },
+    "/competition/unique": {
+      "get": {
+        "tags": [
+          "Competition"
+        ],
+        "summary": "Get unique competitions",
+        "description": "Get unique competitions",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/competition/activate": {
       "put": {
         "summary": "Re-activate account",

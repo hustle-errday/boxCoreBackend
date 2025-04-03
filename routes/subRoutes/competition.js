@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   getCompetitions,
   getCompetitionDetail,
+  getUniqueCompetition,
   getAllParticipants,
 } = require("../../controller/competition");
 const { reActivateAccount } = require("../../controller/personal");
@@ -23,6 +24,7 @@ router
     requestDataValidation,
     getCompetitionDetail
   );
+router.route("/unique").get(getUniqueCompetition);
 router
   .route("/activate")
   .put(

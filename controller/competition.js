@@ -134,6 +134,34 @@ exports.getCompetitionDetail = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getUniqueCompetition = asyncHandler(async (req, res, next) => {
+  /*
+  #swagger.tags = ['Competition']
+  #swagger.summary = 'Get unique competitions'
+  #swagger.description = 'Get unique competitions'
+  */
+
+  const theCompetition = await models.competition
+    .findOne(
+      { isUnique: true },
+      {
+        name: 1,
+        banner: 1,
+        startDate: 1,
+        endDate: 1,
+        registrationStartDate: 1,
+        registrationDeadline: 1,
+      }
+    )
+    .sort({ _id: -1 })
+    .lean();
+
+  res.status(200).json({
+    success: true,
+    data: theCompetition,
+  });
+});
+
 exports.joinCompetition = asyncHandler(async (req, res, next) => {
   /*
   #swagger.tags = ['Competition']
