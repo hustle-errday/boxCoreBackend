@@ -100,23 +100,20 @@ exports.joinClub = asyncHandler(async (req, res, next) => {
 
   const clubLog = await models.clubLog
     .findOne({
-      clubId: clubId,
       userId: token._id,
     })
     .sort({ _id: -1 })
     .lean();
-  if (clubLog && clubLog.action == "pending/join") {
-    throw new myError("Аль хэдийн хүсэлт явуулсан байна.", 400);
-  }
-  if (clubLog && clubLog.action == "join") {
+  if (clubLog || clubLog.action == "join") {
     throw new myError("Та аль хэдийн клуб-д орсон байна.", 400);
   }
 
+  await models.user.findByIdAndUpdate(token._id, { club: clubId });
   await models.clubLog.create({
     clubId: clubId,
     userId: token._id,
     joinAs: "athlete",
-    action: "pending/join",
+    action: "join",
   });
 
   res.status(200).json({
@@ -161,11 +158,12 @@ exports.quitClub = asyncHandler(async (req, res, next) => {
     throw new myError("Та клуб-д байхгүй байна.", 400);
   }
 
+  await models.user.findByIdAndUpdate(token._id, { club: null });
   await models.clubLog.create({
     clubId: user.club,
     userId: token._id,
     joinAs: "athlete",
-    action: "pending/quit",
+    action: "leave",
   });
 
   res.status(200).json({
@@ -174,6 +172,24 @@ exports.quitClub = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.kickFromClub = asyncHandler(async (req, res, next) => {
+  /*
+  #swagger.tags = ['Club']
+  #swagger.summary = 'Kick from club'
+  #swagger.description = 'Kick from club'
+  #swagger.parameters['body'] = {
+    in: 'body',
+    required: true,  
+    schema: { 
+      userId: '5f1f0e7b1c9d440000d7e6f0' 
+    }
+  }
+  */
+  // club iin dasgaljuugach l hasj chadna
+  // user iin club dotor token._id bnuu shalga
+});
+
+// @unused
 exports.getRequests = asyncHandler(async (req, res, next) => {
   /*
   #swagger.tags = ['Club']
@@ -219,6 +235,7 @@ exports.getRequests = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @unused
 exports.acceptRequest = asyncHandler(async (req, res, next) => {
   /*
   #swagger.tags = ['Club']
