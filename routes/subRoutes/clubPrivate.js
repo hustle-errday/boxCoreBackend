@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   joinClub,
   quitClub,
+  kickFromClub,
   getRequests,
   acceptRequest,
 } = require("../../controller/club");
@@ -13,6 +14,13 @@ router
   .route("/join")
   .post(body("clubId").isString().notEmpty(), requestDataValidation, joinClub);
 router.route("/quit").post(quitClub);
+router
+  .route("/kick")
+  .post(
+    body("userId").isString().notEmpty(),
+    requestDataValidation,
+    kickFromClub
+  );
 router.route("/requests").get(getRequests);
 router
   .route("/accept")

@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   enterCompetition,
   joinCompetition,
+  getCategoryList,
 } = require("../../controller/competition");
 const { body, query } = require("express-validator");
 const requestDataValidation = require("../../middleware/requestDataValidation");
@@ -21,6 +22,13 @@ router
     body("categoryId").isMongoId().notEmpty(),
     requestDataValidation,
     joinCompetition
+  );
+router
+  .route("/category")
+  .get(
+    query("competitionId").isMongoId().notEmpty(),
+    requestDataValidation,
+    getCategoryList
   );
 
 module.exports = router;

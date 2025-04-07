@@ -104,7 +104,7 @@ exports.joinClub = asyncHandler(async (req, res, next) => {
     })
     .sort({ _id: -1 })
     .lean();
-  if (clubLog || clubLog.action == "join") {
+  if (clubLog && clubLog.action == "join") {
     throw new myError("Та аль хэдийн клуб-д орсон байна.", 400);
   }
 
@@ -185,8 +185,69 @@ exports.kickFromClub = asyncHandler(async (req, res, next) => {
     }
   }
   */
-  // club iin dasgaljuugach l hasj chadna
-  // user iin club dotor token._id bnuu shalga
+
+  const { userId } = req.body;
+
+  const token = jwt.decode(req.headers.authorization.split(" ")[1]);
+
+  const theUser = await models.user
+    .findOne({ _id: userId, role: "athlete" })
+    .lean();
+  if (!theUser) {
+    throw new myError("Тамирчин олдсонгүй", 400);
+  }
+  if (!theUser.club) {
+    throw new myError("Тамирчин клубд элсээгүй байна", 400);
+  }
+
+  const coach = await models.user.findById(token._id).lean();
+  if (!coach) {
+    throw new myError("Хэрэглэгч олдсонгүй", 400);
+  }
+  if (coach.role != "coach") {
+    throw new myError("Та багш байх шаардлагатай.", 400);
+  }
+  if (!coach.club) {
+    throw new myError("Та клубд элсээгүй байна.", 400);
+  }
+
+  const club = await models.club.findById(coach.club).lean();
+  if (!club) {
+    throw new myError("Дасгалжуулагчийн клуб олдсонгүй", 400);
+  }
+
+  const userClub = await models.club.findById(theUser.club).lean();
+  if (!userClub) {
+    throw new myError("Тамирчны клуб олдсонгүй", 400);
+  }
+
+  if (userClub._id.toString() != club._id.toString()) {
+    throw new myError("Та энэ тамирчны клубд дасгалжуулагч биш байна.", 400);
+  }
+
+  const clubLog = await models.clubLog
+    .findOne({
+      clubId: theUser.club,
+      userId: userId,
+    })
+    .sort({ _id: -1 })
+    .lean();
+  if (!clubLog || clubLog.action != "join") {
+    throw new myError("Тамирчин клубд элсээгүй байна", 400);
+  }
+
+  await models.user.findByIdAndUpdate(userId, { club: null });
+  await models.clubLog.create({
+    clubId: theUser.club,
+    userId: userId,
+    joinAs: "athlete",
+    action: "kick",
+  });
+
+  res.status(200).json({
+    success: true,
+    data: "Тамирчныг клубнаас хаслаа.",
+  });
 });
 
 // @unused

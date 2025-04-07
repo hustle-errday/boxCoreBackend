@@ -8,16 +8,19 @@ var cors = require("cors");
 const fs = require("fs");
 const authRoutes = require("./routes/auth");
 const mainRoutes = require("./routes/mainRoutes");
+const callbackRoutes = require("./routes/callback");
 const publicRoutes = require("./routes/publicRoutes");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swaggerDoc.json");
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/error");
 const { authenticateRequest } = require("./middleware/validateRequest");
+const { qPayAccessCron } = require("./myFunctions/paymentHelper");
 
 dotenv.config({ path: "./config/configProduction.env" });
 
 connectDB();
+qPayAccessCron();
 
 if (process.env.NODE_ENV === "production") {
   const privatekey = fs.readFileSync("/etc/ssl/warfc/warfc.key");
@@ -38,7 +41,14 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(cors());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/callback", callbackRoutes);
 app.use("/auth", authRoutes);
 app.use("/", publicRoutes);
 app.use("/api", authenticateRequest, mainRoutes);
+app.use("/uuree", (req, res, next) => {
+  res.status(200).json({
+    success: true,
+    message: "julh <3",
+  });
+});
 app.use(errorHandler);

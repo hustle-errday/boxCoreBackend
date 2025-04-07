@@ -5,6 +5,9 @@ const {
   setPersonalInfo,
   getClubInfo,
   deleteAccount,
+  getMyCompetitions,
+  chargePayment,
+  checkPayment,
 } = require("../../controller/personal");
 const { body, query } = require("express-validator");
 const requestDataValidation = require("../../middleware/requestDataValidation");
@@ -35,5 +38,32 @@ router
   );
 router.route("/club").get(getClubInfo);
 router.route("/delete").delete(deleteAccount);
+router.route("/competitions").get(getMyCompetitions);
+router
+  .route("/invoice")
+  .post(
+    body("competitionId").isString().withMessage("Тэмцээний ID буруу байна"),
+    body("total").isNumeric().withMessage("Төлбөрийн дүн буруу байна"),
+    requestDataValidation,
+    chargePayment
+  );
+router.route("/invoice_check").post(
+  /*
+    #swagger.tags = ['Personal']
+    #swagger.summary = 'Check payment'
+    #swagger.description = 'Check payment'
+    #swagger.parameters['obj'] = {
+      in: 'body',
+      description: 'Check payment',
+      schema: { 
+        invoiceId: 'invoiceId',
+      }
+    }
+    */
+
+  body("invoiceId").isString().notEmpty(),
+  requestDataValidation,
+  checkPayment
+);
 
 module.exports = router;

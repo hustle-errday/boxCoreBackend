@@ -15,6 +15,29 @@
     "http"
   ],
   "paths": {
+    "/callback/qpay": {
+      "get": {
+        "tags": [
+          "Callback"
+        ],
+        "summary": "QPay callback",
+        "description": "QPay callback",
+        "parameters": [
+          {
+            "name": "qpay_payment_id",
+            "in": "query",
+            "type": "string",
+            "description": "payment id",
+            "default": "746624676496026"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/auth/signup": {
       "post": {
         "tags": [
@@ -436,6 +459,50 @@
         }
       }
     },
+    "/api/club/kick": {
+      "post": {
+        "tags": [
+          "Club"
+        ],
+        "summary": "Kick from club",
+        "description": "Kick from club",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "access token",
+            "required": true,
+            "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMiIsInJvbGUiOiJvd25lciIsInVzZXJuYW1lIjoiOTQyODgwMDgiLCJvcmdhbml6YXRpb25JZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMCIsImlhdCI6MTczNzk3NDg5MCwiZXhwIjoxNzM5MjcwODkwfQ.lQb4MH9jWY2-wzKCDgzWclUWKuipFFQm5E9sLmgY7T8",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string",
+                  "example": "5f1f0e7b1c9d440000d7e6f0"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/api/club/requests": {
       "get": {
         "tags": [
@@ -737,6 +804,122 @@
         }
       }
     },
+    "/api/personal/competitions": {
+      "get": {
+        "tags": [
+          "Personal"
+        ],
+        "summary": "Get my competitions",
+        "description": "Get my competitions",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "access token",
+            "required": true,
+            "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMiIsInJvbGUiOiJvd25lciIsInVzZXJuYW1lIjoiOTQyODgwMDgiLCJvcmdhbml6YXRpb25JZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMCIsImlhdCI6MTczNzk3NDg5MCwiZXhwIjoxNzM5MjcwODkwfQ.lQb4MH9jWY2-wzKCDgzWclUWKuipFFQm5E9sLmgY7T8",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/personal/invoice": {
+      "post": {
+        "tags": [
+          "Personal"
+        ],
+        "summary": "Charge payment",
+        "description": "Charge payment",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "access token",
+            "required": true,
+            "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMiIsInJvbGUiOiJvd25lciIsInVzZXJuYW1lIjoiOTQyODgwMDgiLCJvcmdhbml6YXRpb25JZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMCIsImlhdCI6MTczNzk3NDg5MCwiZXhwIjoxNzM5MjcwODkwfQ.lQb4MH9jWY2-wzKCDgzWclUWKuipFFQm5E9sLmgY7T8",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Charge payment",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "competitionId": {
+                  "type": "string",
+                  "example": "competitionId"
+                },
+                "total": {
+                  "type": "number",
+                  "example": 80000
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/personal/invoice_check": {
+      "post": {
+        "tags": [
+          "Personal"
+        ],
+        "summary": "Check payment",
+        "description": "Check payment",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "access token",
+            "required": true,
+            "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMiIsInJvbGUiOiJvd25lciIsInVzZXJuYW1lIjoiOTQyODgwMDgiLCJvcmdhbml6YXRpb25JZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMCIsImlhdCI6MTczNzk3NDg5MCwiZXhwIjoxNzM5MjcwODkwfQ.lQb4MH9jWY2-wzKCDgzWclUWKuipFFQm5E9sLmgY7T8",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Check payment",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "invoiceId": {
+                  "type": "string",
+                  "example": "invoiceId"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/api/competition/enter": {
       "post": {
         "tags": [
@@ -778,6 +961,9 @@
           },
           "401": {
             "description": "Unauthorized"
+          },
+          "402": {
+            "description": "Payment Required"
           }
         }
       }
@@ -816,6 +1002,42 @@
                 }
               }
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/competition/category": {
+      "get": {
+        "tags": [
+          "Competition"
+        ],
+        "summary": "Get Category List By Category",
+        "description": "Get category list by category",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "access token",
+            "required": true,
+            "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMiIsInJvbGUiOiJvd25lciIsInVzZXJuYW1lIjoiOTQyODgwMDgiLCJvcmdhbml6YXRpb25JZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMCIsImlhdCI6MTczNzk3NDg5MCwiZXhwIjoxNzM5MjcwODkwfQ.lQb4MH9jWY2-wzKCDgzWclUWKuipFFQm5E9sLmgY7T8",
+            "type": "string"
+          },
+          {
+            "name": "competitionId",
+            "competitionId": "60f4f2c4a4c6b80015f6f5a9",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {

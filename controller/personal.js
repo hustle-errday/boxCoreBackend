@@ -1,7 +1,12 @@
 const asyncHandler = require("../middleware/asyncHandler");
 const myError = require("../utility/myError");
 const models = require("../models/models");
+const moment = require("moment-timezone");
 const jwt = require("jsonwebtoken");
+const {
+  generateQPayPayment,
+  checkPayment,
+} = require("../myFunctions/paymentHelper");
 
 exports.setPersonalInfo = asyncHandler(async (req, res, next) => {
   /*
@@ -186,4 +191,214 @@ exports.reActivateAccount = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
   });
+});
+
+exports.getMyCompetitions = asyncHandler(async (req, res, next) => {
+  /*
+  #swagger.tags = ['Personal']
+  #swagger.summary = 'Get my competitions'
+  #swagger.description = 'Get my competitions'
+  */
+
+  const token = jwt.decode(req.headers.authorization.split(" ")[1]);
+
+  const user = await models.user.findOne({ _id: token._id }).lean();
+  if (!user) {
+    throw new myError("Хэрэглэгч олдсонгүй.", 400);
+  }
+
+  const checkRegister = await models.participant
+    .find({ userId: user._id })
+    .populate("competitionId")
+    .sort({ _id: -1 })
+    .lean();
+
+  const data = [];
+  checkRegister.forEach((item) => {
+    data.push({
+      competitionId: item.competitionId._id,
+      name: item.competitionId.name,
+      startDate: item.competitionId.startDate,
+      endDate: item.competitionId.endDate,
+      chargePaid: item.chargePaid,
+      charge: item.competitionId.charge,
+      chargeDeadLine: item.competitionId.chargeDeadline,
+      banner: item.competitionId.banner,
+      status: item.status,
+    });
+  });
+
+  res.status(200).json({
+    success: true,
+    data: data,
+  });
+});
+
+exports.chargePayment = asyncHandler(async (req, res, next) => {
+  /*
+  #swagger.tags = ['Personal']
+  #swagger.summary = 'Charge payment'
+  #swagger.description = 'Charge payment'
+  #swagger.parameters['obj'] = {
+    in: 'body',
+    description: 'Charge payment',
+    schema: { 
+      competitionId: 'competitionId',
+      total: 80000,
+    }
+  }
+  */
+
+  const { competitionId, total } = req.body;
+  const token = jwt.decode(req.headers.authorization.split(" ")[1]);
+
+  const now = moment().tz("Asia/Ulaanbaatar").format("YYYY-MM-DD HH:mm:ss");
+
+  const [user, theCompetition] = await Promise.all([
+    models.user.findOne({ _id: token._id, isActive: true }).lean(),
+    models.competition
+      .findById({
+        _id: competitionId,
+      })
+      .lean(),
+  ]);
+  if (!user) {
+    throw new myError("Хэрэглэгч олдсонгүй.", 400);
+  }
+  if (!theCompetition) {
+    throw new myError("Тэмцээн олдсонгүй.", 400);
+  }
+  // if (parseInt(theCompetition.charge) != parseInt(total)) {
+  //   throw new myError("Хураамжийн үнийн дүн зөрүүтэй байна.", 400);
+  // }
+  // if (
+  //   theCompetition.chargeDeadline &&
+  //   moment(theCompetition.chargeDeadline).isBefore(now)
+  // ) {
+  //   throw new myError("Тэмцээний хураамж төлөх хугацаа дууссан байна.", 400);
+  // }
+  // if (moment(theCompetition.startDate).isBefore(now)) {
+  //   throw new myError("Тэмцээн эхэлсэн байна.", 400);
+  // }
+
+  const participant = await models.participant
+    .findOne({ userId: user._id, competitionId: competitionId })
+    .lean();
+  if (!participant) {
+    throw new myError("Та тэмцээнд бүртгүүлээгүй байна.", 400);
+  }
+  if (participant.chargePaid) {
+    throw new myError("Тэмцээний хураамж төлөгдсөн байна.", 400);
+  }
+
+  const invoices = await models.invoice
+    .find({
+      isPaid: false,
+      competitionId: competitionId,
+      participantId: participant._id,
+    })
+    .lean();
+  if (invoices.length > 0) {
+    await models.invoice.deleteMany({
+      isPaid: false,
+      competitionId: competitionId,
+      participantId: participant._id,
+    });
+  }
+
+  // save invoice
+  const invoiceCreation = await models.invoice.create({
+    competitionId: competitionId,
+    participantId: participant._id,
+    total: parseInt(total),
+  });
+
+  const qpayObject = {
+    invoice_code: "SHURBUM_SH_INVOICE",
+    sender_invoice_no: `${moment().valueOf()}`,
+    invoice_receiver_code: user._id.toString(),
+    invoice_description: "Тэмцээний хураамж",
+    calculate_vat: false,
+    amount: parseInt(total),
+    callback_url: process.env.QPAY_CALLBACK_URL,
+  };
+
+  const qPayResponse = await generateQPayPayment(
+    qpayObject,
+    process.env.QPAY_ACCESS_TOKEN
+  );
+
+  if (!qPayResponse) {
+    throw new myError("Qpay руу хандахад алдаа гарлаа", 400);
+  }
+
+  await models.invoice.findByIdAndUpdate(invoiceCreation._id, {
+    invoice_id: qPayResponse.invoice_id,
+    qpay: qPayResponse,
+  });
+
+  res.status(200).json({
+    success: true,
+    _id: invoiceCreation._id,
+    data: qPayResponse,
+  });
+});
+
+exports.checkPayment = asyncHandler(async (req, res, next) => {
+  const { invoiceId } = req.body;
+  const token = jwt.decode(req.headers.authorization.split(" ")[1]);
+
+  const user = await models.user
+    .findOne({ _id: token._id, isActive: true })
+    .lean();
+  if (!user) {
+    throw new myError("Хэрэглэгч олдсонгүй.", 400);
+  }
+
+  const invoice = await models.invoice.findOne({
+    _id: invoiceId,
+  });
+  if (!invoice) {
+    throw new myError("Нэхэмжлэл олдсонгүй.", 400);
+  }
+
+  const participant = await models.participant
+    .findOne({ userId: user._id, competitionId: invoice.competitionId })
+    .lean();
+  if (!participant) {
+    throw new myError("Тэмцээний бүртгэл олдсонгүй.", 400);
+  }
+
+  const qpayObject = {
+    object_type: "INVOICE",
+    object_id: invoice.invoice_id,
+    offset: {
+      page_number: 1,
+      page_limit: 100,
+    },
+  };
+
+  const qPayResponse = await checkPayment(qpayObject);
+  if (!qPayResponse) {
+    throw new myError("Qpay руу хандахад алдаа гарлаа", 400);
+  }
+
+  if (qPayResponse.count == 0) {
+    return res.status(200).json({
+      success: true,
+      data: "Төлбөр хийгдээгүй байна",
+    });
+  }
+  if (qPayResponse.rows[0].payment_status == "PAID") {
+    invoice.isPaid = true;
+    invoice.paidAt = moment()
+      .tz("Asia/Ulaanbaatar")
+      .format("YYYY-MM-DD HH:mm:ss");
+    await invoice.save();
+
+    return res.status(200).json({
+      success: true,
+      data: "Төлбөр амжилттай хийгдлээ",
+    });
+  }
 });

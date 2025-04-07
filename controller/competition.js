@@ -3,7 +3,10 @@ const myError = require("../utility/myError");
 const models = require("../models/models");
 const moment = require("moment-timezone");
 const jwt = require("jsonwebtoken");
-const { matchCategory } = require("../myFunctions/competitionHelper");
+const {
+  matchCategory,
+  transformData,
+} = require("../myFunctions/competitionHelper");
 
 exports.getCompetitions = asyncHandler(async (req, res, next) => {
   /*
@@ -264,7 +267,11 @@ exports.enterCompetition = asyncHandler(async (req, res, next) => {
   ]);
 
   if (checkRegister) {
-    throw new myError("Та уг тэмцээнд бүртгэлтэй байна", 400);
+    return res.status(402).json({
+      success: false,
+      code: 402,
+      error: "Та уг тэмцээнд бүртгэлтэй байна",
+    });
   }
   if (moment(now).isBefore(moment(theCompetition.registrationStartDate))) {
     throw new myError("Тэмцээний бүртгэл хараахан эхлээгүй байна", 400);
@@ -358,5 +365,42 @@ exports.getAllParticipants = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: data,
+  });
+});
+
+exports.getCategoryList = asyncHandler(async (req, res, next) => {
+  /*
+  #swagger.tags = ['Competition']
+  #swagger.summary = 'Get Category List By Category'
+  #swagger.description = 'Get category list by category'
+  #swagger.parameters['competitionId'] = { competitionId: '60f4f2c4a4c6b80015f6f5a9' }
+  */
+
+  const { competitionId } = req.query;
+
+  const competition = await models.competition
+    .findById({ _id: competitionId })
+    .lean();
+  if (!competition) {
+    throw new myError("Тэмцээн олдсонгүй.", 400);
+  }
+
+  const data = [];
+  for (let i = 0; i < competition.categories.length; i++) {
+    const category = await models.category
+      .findById({ _id: competition.categories[i] })
+      .lean();
+    if (!category) {
+      throw new myError("Тэмцээн доторх ангилал олдсонгүй.", 400);
+    }
+
+    data.push(category);
+  }
+
+  const transformedData = await transformData(data);
+
+  res.status(200).json({
+    success: true,
+    data: transformedData,
   });
 });
