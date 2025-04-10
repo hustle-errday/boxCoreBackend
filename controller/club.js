@@ -40,7 +40,7 @@ exports.getClubDetail = asyncHandler(async (req, res, next) => {
         { club: _id, role: "athlete", isActive: true },
         { __v: 0, password: 0 }
       )
-      .countDocuments(),
+      .lean(),
   ]);
 
   if (!club) {
@@ -57,8 +57,19 @@ exports.getClubDetail = asyncHandler(async (req, res, next) => {
       delete item._id;
     });
   }
+  if (clubMembers && clubMembers.length > 0) {
+    clubMembers.forEach((item) => {
+      item.name = `${item.firstName} ${item.lastName}`;
+      item.imageUrl = item.imageUrl;
 
-  club.memberCount = clubMembers;
+      delete item.firstName;
+      delete item.lastName;
+      delete item._id;
+    });
+  }
+
+  club.memberCount = clubMembers.length;
+  club.members = clubMembers;
 
   res.status(200).json({
     success: true,
