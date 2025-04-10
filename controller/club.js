@@ -57,17 +57,6 @@ exports.getClubDetail = asyncHandler(async (req, res, next) => {
       delete item._id;
     });
   }
-  if (clubMembers && clubMembers.length > 0) {
-    clubMembers.forEach((item) => {
-      item.firstName = item.firstName;
-      item.lastName = item.lastName;
-      item.imageUrl = item.imageUrl;
-
-      delete item.firstName;
-      delete item.lastName;
-      delete item._id;
-    });
-  }
 
   club.memberCount = clubMembers.length;
   club.members = clubMembers;
