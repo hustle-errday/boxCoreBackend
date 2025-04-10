@@ -59,7 +59,8 @@ exports.getClubDetail = asyncHandler(async (req, res, next) => {
   }
   if (clubMembers && clubMembers.length > 0) {
     clubMembers.forEach((item) => {
-      item.name = `${item.firstName} ${item.lastName}`;
+      item.firstName = item.firstName;
+      item.lastName = item.lastName;
       item.imageUrl = item.imageUrl;
 
       delete item.firstName;
