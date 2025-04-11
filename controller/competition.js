@@ -105,11 +105,13 @@ exports.getCompetitionDetail = asyncHandler(async (req, res, next) => {
   let female = 0;
   let unknown = 0;
   for (let i = 0; i < participants.length; i++) {
-    if (participants[i].userId.sex === "male") {
+    if (participants[i].userId.sex && participants[i].userId.sex === "male") {
       male++;
-    } else if (participants[i].userId.sex === "female") {
+    }
+    if (participants[i].userId.sex && participants[i].userId.sex === "female") {
       female++;
-    } else {
+    }
+    if (!participants[i].userId.sex) {
       unknown++;
     }
   }
