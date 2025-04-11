@@ -105,13 +105,16 @@ exports.getCompetitionDetail = asyncHandler(async (req, res, next) => {
   let female = 0;
   let unknown = 0;
   for (let i = 0; i < participants.length; i++) {
-    if (participants[i].userId.sex && participants[i].userId.sex === "male") {
+    if (participants[i].userId?.sex && participants[i].userId.sex === "male") {
       male++;
     }
-    if (participants[i].userId.sex && participants[i].userId.sex === "female") {
+    if (
+      participants[i].userId?.sex &&
+      participants[i].userId.sex === "female"
+    ) {
       female++;
     }
-    if (!participants[i].userId.sex) {
+    if (!participants[i].userId?.sex) {
       unknown++;
     }
   }
@@ -241,93 +244,89 @@ exports.enterCompetition = asyncHandler(async (req, res, next) => {
 
   const { competitionId } = req.body;
 
-  try {
-    const token = jwt.decode(req.headers.authorization.split(" ")[1]);
-    const now = moment().tz("Asia/Ulaanbaatar").format("YYYY-MM-DD HH:mm:ss");
+  const token = jwt.decode(req.headers.authorization.split(" ")[1]);
+  const now = moment().tz("Asia/Ulaanbaatar").format("YYYY-MM-DD HH:mm:ss");
 
-    const [theCompetition, theUser] = await Promise.all([
-      models.competition.findById({ _id: competitionId }).lean(),
-      models.user.findById(token._id).lean(),
-    ]);
-    if (!theCompetition) {
-      throw new myError("Тэмцээн олдсонгүй", 400);
-    }
-    if (!theUser) {
-      throw new myError("Хэрэглэгч олдсонгүй", 400);
-    }
-    if (theUser.role !== "athlete") {
-      throw new myError("Та тамирчин байх шаардлагатай", 400);
-    }
-
-    const [categories, checkRegister] = await Promise.all([
-      models.category.find({ _id: { $in: theCompetition.categories } }).lean(),
-      models.participant
-        .findOne({
-          competitionId: competitionId,
-          userId: token._id,
-        })
-        .lean(),
-    ]);
-
-    if (checkRegister) {
-      return res.status(402).json({
-        success: false,
-        code: 402,
-        error: "Та уг тэмцээнд бүртгэлтэй байна",
-      });
-    }
-    if (moment(now).isBefore(moment(theCompetition.registrationStartDate))) {
-      throw new myError("Тэмцээний бүртгэл хараахан эхлээгүй байна", 400);
-    }
-    if (moment(now).isAfter(moment(theCompetition.registrationDeadline))) {
-      throw new myError("Тэмцээний бүртгэл хаагдсан байна", 400);
-    }
-    if (moment(now).isAfter(moment(theCompetition.startDate))) {
-      throw new myError("Тэмцээн эхлэсэн тул бүртгүүлэх боломжгүй", 400);
-    }
-    if (moment(now).isAfter(moment(theCompetition.endDate))) {
-      throw new myError("Тэмцээн дууссан байна", 400);
-    }
-
-    // find the best-matching category
-    const userSex = theUser.sex;
-    const userAge = moment().diff(
-      moment(theUser.birthDate, "YYYY-MM-DD"),
-      "years"
-    );
-    const userWeight = parseFloat(theUser.weight);
-    const userHeight = parseFloat(theUser.height);
-
-    // magical function to find the best-matching category
-    const matchedCategory = await matchCategory(categories, {
-      userSex,
-      userAge,
-      userWeight,
-      userHeight,
-    });
-
-    if (!matchedCategory) {
-      throw new myError("Танд тохирох ангилал олдсонгүй", 400);
-    }
-
-    const data = {
-      userSex,
-      userAge,
-      userWeight,
-      userHeight,
-      categories: matchedCategory.map((cat) => ({
-        categoryId: cat._id,
-        name: cat.name,
-      })),
-    };
-
-    res.status(200).json({
-      success: true,
-      data: data,
-    });
-  } catch (error) {
-    console.log(error);
+  const [theCompetition, theUser] = await Promise.all([
+    models.competition.findById({ _id: competitionId }).lean(),
+    models.user.findById(token._id).lean(),
+  ]);
+  if (!theCompetition) {
+    throw new myError("Тэмцээн олдсонгүй", 400);
   }
+  if (!theUser) {
+    throw new myError("Хэрэглэгч олдсонгүй", 400);
+  }
+  if (theUser.role !== "athlete") {
+    throw new myError("Та тамирчин байх шаардлагатай", 400);
+  }
+
+  const [categories, checkRegister] = await Promise.all([
+    models.category.find({ _id: { $in: theCompetition.categories } }).lean(),
+    models.participant
+      .findOne({
+        competitionId: competitionId,
+        userId: token._id,
+      })
+      .lean(),
+  ]);
+
+  if (checkRegister) {
+    return res.status(402).json({
+      success: false,
+      code: 402,
+      error: "Та уг тэмцээнд бүртгэлтэй байна",
+    });
+  }
+  if (moment(now).isBefore(moment(theCompetition.registrationStartDate))) {
+    throw new myError("Тэмцээний бүртгэл хараахан эхлээгүй байна", 400);
+  }
+  if (moment(now).isAfter(moment(theCompetition.registrationDeadline))) {
+    throw new myError("Тэмцээний бүртгэл хаагдсан байна", 400);
+  }
+  if (moment(now).isAfter(moment(theCompetition.startDate))) {
+    throw new myError("Тэмцээн эхлэсэн тул бүртгүүлэх боломжгүй", 400);
+  }
+  if (moment(now).isAfter(moment(theCompetition.endDate))) {
+    throw new myError("Тэмцээн дууссан байна", 400);
+  }
+
+  // find the best-matching category
+  const userSex = theUser.sex;
+  const userAge = moment().diff(
+    moment(theUser.birthDate, "YYYY-MM-DD"),
+    "years"
+  );
+  const userWeight = parseFloat(theUser.weight);
+  const userHeight = parseFloat(theUser.height);
+
+  // magical function to find the best-matching category
+  const matchedCategory = await matchCategory(categories, {
+    userSex,
+    userAge,
+    userWeight,
+    userHeight,
+  });
+
+  if (!matchedCategory) {
+    throw new myError("Танд тохирох ангилал олдсонгүй", 400);
+  }
+
+  const data = {
+    userSex,
+    userAge,
+    userWeight,
+    userHeight,
+    categories: matchedCategory.map((cat) => ({
+      categoryId: cat._id,
+      name: cat.name,
+    })),
+  };
+
+  res.status(200).json({
+    success: true,
+    data: data,
+  });
 });
 
 exports.getAllParticipants = asyncHandler(async (req, res, next) => {
@@ -363,8 +362,10 @@ exports.getAllParticipants = asyncHandler(async (req, res, next) => {
       data[category] = [];
     }
     data[category].push({
-      name: `${participants[i].userId.firstName} ${participants[i].userId.lastName}`,
-      imageUrl: participants[i].userId.imageUrl ?? "",
+      name: `${participants[i].userId?.firstName ?? ""} ${
+        participants[i].userId?.lastName ?? ""
+      }`,
+      imageUrl: participants[i].userId?.imageUrl ?? "",
     });
   }
 
