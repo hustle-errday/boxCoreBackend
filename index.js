@@ -16,10 +16,12 @@ const connectDB = require("./config/db");
 const errorHandler = require("./middleware/error");
 const { authenticateRequest } = require("./middleware/validateRequest");
 const { qPayAccessCron } = require("./myFunctions/paymentHelper");
+const { notifAuth } = require("./config/notification");
 
 dotenv.config({ path: "./config/configProduction.env" });
 
 connectDB();
+// notifAuth();
 qPayAccessCron();
 
 if (process.env.NODE_ENV === "production") {
@@ -45,10 +47,4 @@ app.use("/callback", callbackRoutes);
 app.use("/auth", authRoutes);
 app.use("/", publicRoutes);
 app.use("/api", authenticateRequest, mainRoutes);
-app.use("/uuree", (req, res, next) => {
-  res.status(200).json({
-    success: true,
-    message: "julh <3",
-  });
-});
 app.use(errorHandler);

@@ -348,57 +348,67 @@ exports.checkPayment = asyncHandler(async (req, res, next) => {
   const { invoiceId } = req.body;
   const token = jwt.decode(req.headers.authorization.split(" ")[1]);
 
-  const user = await models.user
-    .findOne({ _id: token._id, isActive: true })
-    .lean();
-  if (!user) {
-    throw new myError("Хэрэглэгч олдсонгүй.", 400);
-  }
+  try {
+    const user = await models.user
+      .findOne({ _id: token._id, isActive: true })
+      .lean();
+    if (!user) {
+      throw new myError("Хэрэглэгч олдсонгүй.", 400);
+    }
 
-  const invoice = await models.invoice.findOne({
-    _id: invoiceId,
-  });
-  if (!invoice) {
-    throw new myError("Нэхэмжлэл олдсонгүй.", 400);
-  }
-
-  const participant = await models.participant
-    .findOne({ userId: user._id, competitionId: invoice.competitionId })
-    .lean();
-  if (!participant) {
-    throw new myError("Тэмцээний бүртгэл олдсонгүй.", 400);
-  }
-
-  const qpayObject = {
-    object_type: "INVOICE",
-    object_id: invoice.invoice_id,
-    offset: {
-      page_number: 1,
-      page_limit: 100,
-    },
-  };
-
-  const qPayResponse = await checkPayment(qpayObject);
-  if (!qPayResponse) {
-    throw new myError("Qpay руу хандахад алдаа гарлаа", 400);
-  }
-
-  if (qPayResponse.count == 0) {
-    return res.status(200).json({
-      success: true,
-      data: "Төлбөр хийгдээгүй байна",
+    const invoice = await models.invoice.findOne({
+      _id: invoiceId,
     });
-  }
-  if (qPayResponse.rows[0].payment_status == "PAID") {
-    invoice.isPaid = true;
-    invoice.paidAt = moment()
-      .tz("Asia/Ulaanbaatar")
-      .format("YYYY-MM-DD HH:mm:ss");
-    await invoice.save();
+    if (!invoice) {
+      throw new myError("Нэхэмжлэл олдсонгүй.", 400);
+    }
 
-    return res.status(200).json({
-      success: true,
-      data: "Төлбөр амжилттай хийгдлээ",
-    });
+    console.log("invoice", invoice);
+
+    const participant = await models.participant
+      .findOne({ userId: user._id, competitionId: invoice.competitionId })
+      .lean();
+    if (!participant) {
+      throw new myError("Тэмцээний бүртгэл олдсонгүй.", 400);
+    }
+
+    console.log("participant", participant);
+
+    const qpayObject = {
+      object_type: "INVOICE",
+      object_id: invoice.invoice_id,
+      offset: {
+        page_number: 1,
+        page_limit: 100,
+      },
+    };
+
+    const qPayResponse = await checkPayment(qpayObject);
+    if (!qPayResponse) {
+      throw new myError("Qpay руу хандахад алдаа гарлаа", 400);
+    }
+
+    console.log("qPayResponse", qPayResponse);
+
+    if (qPayResponse.count == 0) {
+      return res.status(200).json({
+        success: true,
+        data: "Төлбөр хийгдээгүй байна",
+      });
+    }
+    if (qPayResponse.rows[0].payment_status == "PAID") {
+      invoice.isPaid = true;
+      invoice.paidAt = moment()
+        .tz("Asia/Ulaanbaatar")
+        .format("YYYY-MM-DD HH:mm:ss");
+      await invoice.save();
+
+      return res.status(200).json({
+        success: true,
+        data: "Төлбөр амжилттай хийгдлээ",
+      });
+    }
+  } catch (error) {
+    console.log("error", error);
   }
 });
