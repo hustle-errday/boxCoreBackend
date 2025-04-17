@@ -41,7 +41,7 @@ const generateQPayPayment = async (qPayObject, token) => {
         resolve(res.data);
       })
       .catch((error) => {
-        console.log(error.response.data);
+        console.log(error);
         resolve();
       });
   });

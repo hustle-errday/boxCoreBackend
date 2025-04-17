@@ -61,12 +61,13 @@ exports.login = asyncHandler(async (req, res, next) => {
     required: true,
     schema: { 
       phoneNo: '94288008',
-      password: 'password' 
+      password: 'password',
+      notifToken: 'notif token'
     }
   }
   */
 
-  const { phoneNo, password } = req.body;
+  const { phoneNo, password, notifToken } = req.body;
 
   if (!phoneNo || !password) {
     throw new myError("Нууц үг эсвэл утасны дугаар байхгүй байна.", 400);
@@ -83,6 +84,24 @@ exports.login = asyncHandler(async (req, res, next) => {
   const isMatch = await theUser.matchPassword(password);
   if (!isMatch) {
     throw new myError("Нууц үг буруу байна.", 400);
+  }
+
+  if (notifToken) {
+    //in case it exists we're gonna check if that notif token is saved before
+    const theNotifToken = await models.notifToken.findOne({
+      notifKey: notifToken,
+    });
+    if (theNotifToken) {
+      //we're gonna delete the notif token
+      await models.notifToken.deleteMany({ notifKey: notifToken });
+    }
+
+    //now we create one
+    await models.notifToken.create({
+      notifKey: notifToken,
+      phoneNo: phoneNo,
+      userId: theUser._id,
+    });
   }
 
   const accessToken = theUser.getAccessToken();

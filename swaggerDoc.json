@@ -111,6 +111,10 @@
                 "password": {
                   "type": "string",
                   "example": "password"
+                },
+                "notifToken": {
+                  "type": "string",
+                  "example": "notif token"
                 }
               }
             }
@@ -204,6 +208,31 @@
                 }
               }
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/auth/notif_token": {
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Get notification token",
+        "description": "Get notification token",
+        "parameters": [
+          {
+            "name": "notifToken",
+            "notifToken": "token",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
@@ -345,6 +374,45 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/type/notif": {
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Get notification history",
+        "description": "Get notification history",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/type/notif/following": {
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Get following notification history",
+        "description": "hamgiin suuliin notifiin _id",
+        "parameters": [
+          {
+            "name": "_id",
+            "_id": "_id",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         }
       }

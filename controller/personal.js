@@ -268,18 +268,18 @@ exports.chargePayment = asyncHandler(async (req, res, next) => {
   if (!theCompetition) {
     throw new myError("Тэмцээн олдсонгүй.", 400);
   }
-  // if (parseInt(theCompetition.charge) != parseInt(total)) {
-  //   throw new myError("Хураамжийн үнийн дүн зөрүүтэй байна.", 400);
-  // }
-  // if (
-  //   theCompetition.chargeDeadline &&
-  //   moment(theCompetition.chargeDeadline).isBefore(now)
-  // ) {
-  //   throw new myError("Тэмцээний хураамж төлөх хугацаа дууссан байна.", 400);
-  // }
-  // if (moment(theCompetition.startDate).isBefore(now)) {
-  //   throw new myError("Тэмцээн эхэлсэн байна.", 400);
-  // }
+  if (parseInt(theCompetition.charge) != parseInt(total)) {
+    throw new myError("Хураамжийн үнийн дүн зөрүүтэй байна.", 400);
+  }
+  if (
+    theCompetition.chargeDeadline &&
+    moment(theCompetition.chargeDeadline).isBefore(now)
+  ) {
+    throw new myError("Тэмцээний хураамж төлөх хугацаа дууссан байна.", 400);
+  }
+  if (moment(theCompetition.startDate).isBefore(now)) {
+    throw new myError("Тэмцээн эхэлсэн байна.", 400);
+  }
 
   const participant = await models.participant
     .findOne({ userId: user._id, competitionId: competitionId })

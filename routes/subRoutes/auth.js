@@ -7,6 +7,7 @@ const {
   authenticate,
   resetPassword,
 } = require("../../controller/auth");
+const { getNotifToken } = require("../../controller/notification");
 const { body, query } = require("express-validator");
 const requestDataValidation = require("../../middleware/requestDataValidation");
 
@@ -34,6 +35,7 @@ router
       .withMessage("Утасны дугаар буруу байна")
       .notEmpty(),
     body("password").isString().notEmpty(),
+    body("notifToken").isString().optional(),
     requestDataValidation,
     login
   );
@@ -53,5 +55,8 @@ router
     requestDataValidation,
     resetPassword
   );
+router
+  .route("/notif_token")
+  .get(query("notifToken").isString(), requestDataValidation, getNotifToken);
 
 module.exports = router;

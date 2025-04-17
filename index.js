@@ -21,7 +21,7 @@ const { notifAuth } = require("./config/notification");
 dotenv.config({ path: "./config/configProduction.env" });
 
 connectDB();
-// notifAuth();
+notifAuth();
 qPayAccessCron();
 
 if (process.env.NODE_ENV === "production") {
