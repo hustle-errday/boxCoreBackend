@@ -58,10 +58,6 @@
                   "type": "string",
                   "example": "94288008"
                 },
-                "registrationNumber": {
-                  "type": "string",
-                  "example": "FA02320509"
-                },
                 "firstName": {
                   "type": "string",
                   "example": "Dodo"
@@ -70,9 +66,33 @@
                   "type": "string",
                   "example": "Anujin"
                 },
+                "registrationNumber": {
+                  "type": "string",
+                  "example": "FA02320509"
+                },
                 "password": {
                   "type": "string",
                   "example": "qwer123@"
+                },
+                "sex": {
+                  "type": "string",
+                  "example": "male/female"
+                },
+                "birthDate": {
+                  "type": "string",
+                  "example": "1996-02-17"
+                },
+                "height": {
+                  "type": "number",
+                  "example": 170
+                },
+                "weight": {
+                  "type": "number",
+                  "example": 70
+                },
+                "imageUrl": {
+                  "type": "string",
+                  "example": "url"
                 }
               }
             }
@@ -364,6 +384,111 @@
         }
       }
     },
+    "/ranking/categories": {
+      "get": {
+        "tags": [
+          "Ranking"
+        ],
+        "summary": "Get categories for ranking",
+        "description": "Get categories for ranking",
+        "parameters": [
+          {
+            "name": "typeId",
+            "typeId": "aaanhn",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "sex",
+            "sex": "male or female",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/ranking/list": {
+      "get": {
+        "tags": [
+          "Ranking"
+        ],
+        "summary": "Get ranking list",
+        "description": "Get ranking list",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "categoryId": "aaanhn",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/ranking/user": {
+      "get": {
+        "tags": [
+          "Ranking"
+        ],
+        "summary": "Get ranking list",
+        "description": "Get ranking list",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "userId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/image/upload": {
+      "post": {
+        "tags": [
+          "Image"
+        ],
+        "summary": "Upload image",
+        "description": "Upload image",
+        "parameters": [
+          {
+            "name": "image",
+            "in": "formData",
+            "required": true,
+            "type": "file",
+            "description": "Image file"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/type/types": {
       "get": {
         "tags": [
@@ -443,6 +568,32 @@
             "name": "_id",
             "_id": "5f1f0e7b1c9d440000d7e6f0",
             "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/club/ranking": {
+      "get": {
+        "tags": [
+          "Club"
+        ],
+        "summary": "Get club ranking details",
+        "description": "Get club ranking details",
+        "parameters": [
+          {
+            "name": "_id",
+            "in": "query",
+            "description": "Club ID",
+            "required": true,
             "type": "string"
           }
         ],
@@ -678,37 +829,6 @@
           "400": {
             "description": "Bad Request"
           },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/api/image/upload": {
-      "post": {
-        "tags": [
-          "Image"
-        ],
-        "summary": "Upload image",
-        "description": "Upload image",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "access token",
-            "required": true,
-            "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMiIsInJvbGUiOiJvd25lciIsInVzZXJuYW1lIjoiOTQyODgwMDgiLCJvcmdhbml6YXRpb25JZCI6IjY3OTcxZGM3MDc3NTg2YmRhMjUyMWMwMCIsImlhdCI6MTczNzk3NDg5MCwiZXhwIjoxNzM5MjcwODkwfQ.lQb4MH9jWY2-wzKCDgzWclUWKuipFFQm5E9sLmgY7T8",
-            "type": "string"
-          },
-          {
-            "name": "image",
-            "in": "formData",
-            "required": true,
-            "type": "file",
-            "description": "Image file"
-          }
-        ],
-        "responses": {
           "401": {
             "description": "Unauthorized"
           }

@@ -14,16 +14,31 @@ exports.signUp = asyncHandler(async (req, res, next) => {
     required: true,
     schema: { 
       phoneNo: '94288008',
-      registrationNumber: 'FA02320509',
       firstName: 'Dodo',
       lastName: 'Anujin',
-      password: 'qwer123@' 
+      registrationNumber: 'FA02320509',
+      password: 'qwer123@',
+      sex: "male/female",
+      birthDate: '1996-02-17',
+      height: 170,
+      weight: 70,
+      imageUrl: 'url'
     }
   }
   */
 
-  const { phoneNo, registrationNumber, firstName, lastName, password } =
-    req.body;
+  const {
+    phoneNo,
+    registrationNumber,
+    firstName,
+    lastName,
+    password,
+    sex,
+    birthDate,
+    height,
+    weight,
+    imageUrl,
+  } = req.body;
 
   const checkUser = await models.user
     .findOne({ phoneNo: phoneNo, isActive: true })
@@ -38,6 +53,11 @@ exports.signUp = asyncHandler(async (req, res, next) => {
     firstName,
     lastName,
     password,
+    sex,
+    birthDate,
+    height,
+    weight,
+    imageUrl,
   });
 
   const accessToken = userCreation.getAccessToken();

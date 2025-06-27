@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
   },
   registrationNumber: {
     type: String,
+    unique: true,
     trim: true,
   },
   sex: {

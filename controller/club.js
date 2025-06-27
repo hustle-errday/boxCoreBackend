@@ -14,9 +14,48 @@ exports.getClubs = asyncHandler(async (req, res, next) => {
     .find({}, { logo: 1, name: 1, description: 1 })
     .lean();
 
+  const clubIds = clubs.map((club) => club._id);
+
+  // find all users in those clubs
+  const users = await models.user
+    .find({ club: { $in: clubIds } }, { _id: 1, club: 1 })
+    .lean();
+
+  const userIds = users.map((u) => u._id);
+
+  // map userId -> clubId
+  const userClubMap = {};
+  for (const u of users) {
+    userClubMap[u._id.toString()] = u.club.toString();
+  }
+
+  // find all ranking activities for those users
+  const activities = await models.rankingActivity
+    .find({ userId: { $in: userIds } }, { userId: 1, score: 1 })
+    .lean();
+
+  // aggregate scores per club
+  const clubScoreMap = {};
+  for (const act of activities) {
+    const clubId = userClubMap[act.userId.toString()];
+    if (!clubScoreMap[clubId]) clubScoreMap[clubId] = 0;
+    clubScoreMap[clubId] += act.score ?? 0;
+  }
+
+  // build final output
+  const data = clubs.map((club) => ({
+    _id: club._id,
+    name: club.name,
+    logo: club.logo,
+    description: club.description,
+    totalScore: clubScoreMap[club._id.toString()] || 0,
+  }));
+
+  data.sort((a, b) => b.totalScore - a.totalScore);
+
   res.status(200).json({
     success: true,
-    data: clubs,
+    data: data,
   });
 });
 
@@ -248,6 +287,125 @@ exports.kickFromClub = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: "Тамирчныг клубнаас хаслаа.",
+  });
+});
+
+exports.getClubRankingDetail = asyncHandler(async (req, res, next) => {
+  /*
+  #swagger.tags = ['Club']
+  #swagger.summary = 'Get club ranking details'
+  #swagger.description = 'Get club ranking details'
+  #swagger.parameters['_id'] = {
+    in: 'query',
+    description: 'Club ID',
+    required: true,
+    type: 'string'
+  }
+  */
+
+  const { _id } = req.query;
+
+  const theClub = await models.club
+    .findById({ _id: _id }, { createdBy: 0, createdAt: 0, __v: 0, coach: 0 })
+    .lean();
+
+  if (!theClub) {
+    throw new myError("Клуб олдсонгүй.", 400);
+  }
+
+  const members = await models.user.find({ club: theClub._id }).lean();
+  const userIds = members.map((u) => u._id);
+
+  const participants = await models.participant
+    .find({ userId: { $in: userIds }, status: "approved" })
+    .populate("competitionId", "name")
+    .lean();
+
+  let totalWins = 0;
+  let totalLosses = 0;
+  let totalScore = 0;
+  let totalGolden = 0;
+  let totalSilver = 0;
+  let totalBronze = 0;
+
+  const compMap = {};
+  for (const part of participants) {
+    const comp = part.competitionId;
+    if (!comp) continue;
+
+    // init if new competition
+    if (!compMap[comp._id.toString()]) {
+      compMap[comp._id.toString()] = {
+        name: comp.name,
+        participantCount: 0,
+        totalScore: 0,
+        medals: {
+          golden: 0,
+          silver: 0,
+          bronze: 0,
+        },
+      };
+    }
+
+    // count this participant
+    compMap[comp._id.toString()].participantCount++;
+
+    // get scores from rankingActivity
+    const activities = await models.rankingActivity
+      .find({ userId: part.userId })
+      .lean();
+
+    const matches = await models.match
+      .find({
+        $or: [{ playerOne: part._id }, { playerTwo: part._id }],
+        winner: { $exists: true },
+      })
+      .lean();
+
+    for (const match of matches) {
+      if (match.winner.toString() === part._id.toString()) {
+        totalWins++;
+      } else {
+        totalLosses++;
+      }
+    }
+
+    for (const act of activities) {
+      compMap[comp._id.toString()].totalScore += act.score;
+      totalScore += act.score;
+
+      // count medals
+      if (act.score === 10) {
+        compMap[comp._id.toString()].medals.golden++;
+        totalGolden++;
+      } else if (act.score === 5) {
+        compMap[comp._id.toString()].medals.silver++;
+        totalSilver++;
+      } else if (act.score === 2) {
+        compMap[comp._id.toString()].medals.bronze++;
+        totalBronze++;
+      }
+    }
+  }
+
+  const competitions = Object.values(compMap);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      club: theClub,
+      totalScore,
+      stats: {
+        wins: totalWins,
+        losses: totalLosses,
+      },
+      medals: {
+        golden: totalGolden,
+        silver: totalSilver,
+        bronze: totalBronze,
+      },
+      competitions,
+    },
   });
 });
 

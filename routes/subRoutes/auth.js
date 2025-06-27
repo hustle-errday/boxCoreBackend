@@ -23,6 +23,17 @@ router
     body("firstName").isString().notEmpty(),
     body("lastName").isString().notEmpty(),
     body("password").isString().notEmpty(),
+    body("sex").isString().withMessage("Хүйс буруу байна").notEmpty(),
+    body("birthDate")
+      .isString()
+      .withMessage("Он сар өдөр буруу байна")
+      .notEmpty(),
+    body("height").isNumeric().withMessage("Өндөр буруу байна").notEmpty(),
+    body("weight").isNumeric().withMessage("Жин буруу байна").notEmpty(),
+    body("imageUrl")
+      .isString()
+      .withMessage("Зурагны холбоос буруу байна")
+      .notEmpty(),
     requestDataValidation,
     signUp
   );

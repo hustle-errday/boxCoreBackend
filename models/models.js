@@ -1,4 +1,5 @@
 module.exports = {
+  rankingActivity: require("./schema/rankingActivity"),
   notifHistory: require("./schema/notifHistory"),
   competition: require("./schema/competition"),
   participant: require("./schema/participant"),
@@ -6,6 +7,7 @@ module.exports = {
   category: require("./schema/category"),
   clubLog: require("./schema/clubLog"),
   invoice: require("./schema/invoice"),
+  ranking: require("./schema/rank"),
   admin: require("./schema/admin"),
   match: require("./schema/match"),
   user: require("./schema/user"),
