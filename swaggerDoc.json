@@ -466,6 +466,40 @@
         }
       }
     },
+    "/dash/info": {
+      "get": {
+        "tags": [
+          "Information"
+        ],
+        "summary": "Get information",
+        "description": "Get all information",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/dash/sponsors": {
+      "get": {
+        "tags": [
+          "Sponsor"
+        ],
+        "summary": "Get sponsors",
+        "description": "Get all sponsors",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
     "/image/upload": {
       "post": {
         "tags": [

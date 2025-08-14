@@ -27,6 +27,7 @@ exports.getCompetitions = asyncHandler(async (req, res, next) => {
         banner: 1,
         startDate: 1,
         endDate: 1,
+        description: 1,
         registrationStartDate: 1,
         registrationDeadline: 1,
       }
