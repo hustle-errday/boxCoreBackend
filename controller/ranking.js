@@ -103,7 +103,15 @@ exports.getUserDetail = asyncHandler(async (req, res, next) => {
     models.rankingActivity.find({ userId }).sort({ _id: -1 }).lean(),
     models.participant
       .find({ userId }, { __v: 0, createdAt: 0 })
-      .populate("categoryId", "name")
+      .populate({
+        path: "categoryId",
+        select: "name typeId",
+        populate: {
+          path: "typeId",
+          select: "name",
+        },
+      })
+
       .sort({ _id: -1 })
       .lean(),
   ]);
@@ -116,9 +124,6 @@ exports.getUserDetail = asyncHandler(async (req, res, next) => {
   let wins = 0;
   let ko = 0;
   for (const activity of rankingActivities) {
-    // if it's in activity log, count as win
-    wins++;
-
     if (activity.score === 10) goldenMedals++;
     else if (activity.score === 5) silverMedals++;
     else if (activity.score === 2) bronzeMedals++;
@@ -130,8 +135,7 @@ exports.getUserDetail = asyncHandler(async (req, res, next) => {
           {
             $or: [{ playerOne: part._id }, { playerTwo: part._id }],
           },
-          { playerOne: { $exists: true } },
-          { playerTwo: { $exists: true } },
+          { winner: { $exists: true } },
         ],
       })
       .populate("competitionId", "name")
@@ -142,10 +146,9 @@ exports.getUserDetail = asyncHandler(async (req, res, next) => {
 
     for (const match of matches) {
       if (match.playerOne && match.playerTwo) {
-        const isLoser =
-          match.winner && match.winner.toString() !== part._id.toString();
-
-        if (isLoser) losses++;
+        const isWin = match.winner.toString() === part._id.toString();
+        if (isWin) wins++;
+        else losses++;
 
         // K.O. count
         if (match.score?.[part._id]) {
@@ -172,10 +175,11 @@ exports.getUserDetail = asyncHandler(async (req, res, next) => {
         data.push({
           matchId: match._id,
           date: match.matchDateTime,
-          isWin: !isLoser,
+          isWin: isWin,
           isKO: ko > 0,
           competition: match.competitionId?.name ?? "Тодорхойгүй",
-          category: part.categoryId?.name,
+          category: part.categoryId?.name ?? "Тодорхойгүй",
+          type: part.categoryId?.typeId?.name ?? "Тодорхойгүй",
           opponent: opponentUser,
         });
       }
