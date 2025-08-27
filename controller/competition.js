@@ -151,7 +151,7 @@ exports.getUniqueCompetition = asyncHandler(async (req, res, next) => {
   */
 
   const theCompetition = await models.competition
-    .findOne(
+    .find(
       { isUnique: true },
       {
         name: 1,
