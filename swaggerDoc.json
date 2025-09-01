@@ -500,6 +500,23 @@
         }
       }
     },
+    "/dash/videos": {
+      "get": {
+        "tags": [
+          "Video"
+        ],
+        "summary": "Get videos",
+        "description": "Get all videos",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
     "/image/upload": {
       "post": {
         "tags": [

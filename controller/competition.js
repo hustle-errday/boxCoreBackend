@@ -261,6 +261,9 @@ exports.enterCompetition = asyncHandler(async (req, res, next) => {
   if (theUser.role !== "athlete") {
     throw new myError("Та тамирчин байх шаардлагатай", 400);
   }
+  if(!theUser.club) {
+    throw new myError("Та клубд бүртгүүлсэн байх шаардлагатай", 400);
+  }
 
   const [categories, checkRegister] = await Promise.all([
     models.category.find({ _id: { $in: theCompetition.categories } }).lean(),
