@@ -18,7 +18,7 @@ const { authenticateRequest } = require("./middleware/validateRequest");
 const { qPayAccessCron } = require("./myFunctions/paymentHelper");
 const { notifAuth } = require("./config/notification");
 
-dotenv.config({ path: "./config/config.env" });
+dotenv.config({ path: "./config/configProduction.env" });
 
 connectDB();
 notifAuth();

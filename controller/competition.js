@@ -261,7 +261,7 @@ exports.enterCompetition = asyncHandler(async (req, res, next) => {
   if (theUser.role !== "athlete") {
     throw new myError("Та тамирчин байх шаардлагатай", 400);
   }
-  if(!theUser.club) {
+  if (!theUser.club) {
     throw new myError("Та клубд бүртгүүлсэн байх шаардлагатай", 400);
   }
 
@@ -354,22 +354,53 @@ exports.getAllParticipants = asyncHandler(async (req, res, next) => {
     .find({
       competitionId: competitionId,
     })
-    .populate("userId", "firstName lastName imageUrl")
-    .populate("categoryId", "name")
+    .populate({
+      path: "userId",
+      select: "firstName lastName imageUrl club",
+      populate: {
+        path: "club",
+        select: "name logo",
+      },
+    })
+    .populate("categoryId", "name sex age level")
     .lean();
 
   // class by category
-  const data = {};
-  for (let i = 0; i < participants.length; i++) {
-    const category = participants[i].categoryId.name;
-    if (!data[category]) {
-      data[category] = [];
+  const data = [];
+
+  for (const p of participants) {
+    const category = {
+      name: p.categoryId.name,
+      sex: p.categoryId.sex,
+      age: p.categoryId.age,
+      level: p.categoryId.level,
+    };
+
+    // find if this category already exists
+    let group = data.find(
+      (g) =>
+        g.category.name === category.name &&
+        g.category.sex === category.sex &&
+        g.category.age === category.age &&
+        g.category.level === category.level
+    );
+
+    if (!group) {
+      group = { category, participants: [] };
+      data.push(group);
     }
-    data[category].push({
-      name: `${participants[i].userId?.firstName ?? ""} ${
-        participants[i].userId?.lastName ?? ""
-      }`,
-      imageUrl: participants[i].userId?.imageUrl ?? "",
+
+    group.participants.push({
+      _id: p.userId?._id,
+      name: `${p.userId?.firstName ?? ""} ${p.userId?.lastName ?? ""}`.trim(),
+      imageUrl: p.userId?.imageUrl ?? "",
+      chargePaid: p.chargePaid,
+      club: p.userId?.club
+        ? {
+            name: p.userId.club.name,
+            logo: p.userId.club.logo,
+          }
+        : null,
     });
   }
 

@@ -317,7 +317,7 @@ exports.chargePayment = asyncHandler(async (req, res, next) => {
     invoice_code: "SHURBUM_SH_INVOICE",
     sender_invoice_no: `${moment().valueOf()}`,
     invoice_receiver_code: user._id.toString(),
-    invoice_description: "Тэмцээний хураамж",
+    invoice_description: `Тэмцээний хураамж - ${user.phoneNo}`,
     calculate_vat: false,
     amount: parseInt(total),
     callback_url: process.env.QPAY_CALLBACK_URL,
