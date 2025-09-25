@@ -7,6 +7,7 @@ const {
   getAllParticipants,
 } = require("../../controller/competition");
 const { reActivateAccount } = require("../../controller/personal");
+const { getUserInfo } = require("../../controller/personal");
 const { body, query } = require("express-validator");
 const requestDataValidation = require("../../middleware/requestDataValidation");
 
@@ -38,6 +39,13 @@ router
     query("competitionId").isMongoId().notEmpty(),
     requestDataValidation,
     getAllParticipants
+  );
+router
+  .route("/user")
+  .get(
+    query("userId").isMongoId().notEmpty(),
+    requestDataValidation,
+    getUserInfo
   );
 
 module.exports = router;

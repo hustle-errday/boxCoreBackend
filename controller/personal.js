@@ -405,3 +405,34 @@ exports.checkPayment = asyncHandler(async (req, res, next) => {
     });
   }
 });
+
+exports.getUserInfo = asyncHandler(async (req, res, next) => {
+  /*
+  #swagger.tags = ['Competition']
+  #swagger.summary = 'Get personal info'
+  #swagger.description = 'Get personal info'
+  #swagger.parameters['userId'] = {
+    in: 'query',
+    description: 'userId',
+    required: true,
+    type: 'string'
+  }
+  */
+
+  const { userId } = req.query;
+
+  const user = await models.user
+    .findOne({ _id: userId }, { __v: 0, password: 0 })
+    .populate("club", "name logo")
+    .lean();
+  if (!user) {
+    throw new myError("Хэрэглэгч олдсонгүй.", 400);
+  }
+
+  user.club ? user.club.name : "";
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});

@@ -384,6 +384,32 @@
         }
       }
     },
+    "/competition/user": {
+      "get": {
+        "tags": [
+          "Competition"
+        ],
+        "summary": "Get personal info",
+        "description": "Get personal info",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "userId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
     "/ranking/categories": {
       "get": {
         "tags": [
