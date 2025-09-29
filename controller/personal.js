@@ -332,10 +332,13 @@ exports.chargePayment = asyncHandler(async (req, res, next) => {
     throw new myError("Qpay руу хандахад алдаа гарлаа", 400);
   }
 
-  await models.invoice.findByIdAndUpdate(invoiceCreation._id, {
-    invoice_id: qPayResponse.invoice_id,
-    qpay: qPayResponse,
-  });
+  await models.invoice.findByIdAndUpdate(
+    { _id: invoiceCreation._id },
+    {
+      invoice_id: qPayResponse.invoice_id,
+      qpay: qPayResponse,
+    }
+  );
 
   res.status(200).json({
     success: true,
@@ -389,7 +392,7 @@ exports.checkPayment = asyncHandler(async (req, res, next) => {
       data: "Төлбөр хийгдээгүй байна",
     });
   }
-  if (qPayResponse.rows[0].payment_status == "PAID") {
+  if (qPayResponse.rows[0].payment_status.toLowerCase() == "paid") {
     invoice.isPaid = true;
     invoice.paidAt = moment()
       .tz("Asia/Ulaanbaatar")

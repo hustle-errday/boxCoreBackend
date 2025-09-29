@@ -19,6 +19,7 @@ exports.qPayCallback = asyncHandler(async (req, res, next) => {
 
   const { qpay_payment_id } = req.query;
 
+  console.log("--------------QPay req", req);
   console.log("QPay callback", qpay_payment_id);
 
   res.status(200).json({
