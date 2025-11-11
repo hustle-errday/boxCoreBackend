@@ -18,9 +18,22 @@ exports.getRankingCategories = asyncHandler(async (req, res, next) => {
     .sort({ _id: -1 })
     .lean();
 
+  const data = [];
+  for (const category of categoryList) {
+    const rankingExists = await models.ranking.exists({
+      categoryId: category._id,
+    });
+
+    if (rankingExists) {
+      data.push({
+        ...category,
+      });
+    }
+  }
+
   res.status(200).json({
     success: true,
-    data: categoryList,
+    data: data,
   });
 });
 

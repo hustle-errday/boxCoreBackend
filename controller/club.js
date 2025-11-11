@@ -20,7 +20,6 @@ exports.getClubs = asyncHandler(async (req, res, next) => {
   const users = await models.user
     .find({ club: { $in: clubIds } }, { _id: 1, club: 1 })
     .lean();
-
   const userIds = users.map((u) => u._id);
 
   // map userId -> clubId
@@ -321,80 +320,106 @@ exports.getClubRankingDetail = asyncHandler(async (req, res, next) => {
     .populate("competitionId", "name")
     .lean();
 
-  let totalWins = 0;
-  let totalLosses = 0;
+  const participantIds = participants.map((p) => p._id);
+
+  const [allActivities, allMatches] = await Promise.all([
+    models.rankingActivity.find({ userId: { $in: userIds } }).lean(),
+    models.match
+      .find({
+        $or: [
+          { playerOne: { $in: participantIds } },
+          { playerTwo: { $in: participantIds } },
+        ],
+        winner: { $exists: true },
+      })
+      .lean(),
+  ]);
+
   let totalScore = 0;
   let totalGolden = 0;
   let totalSilver = 0;
   let totalBronze = 0;
 
-  const compMap = {};
-  for (const part of participants) {
-    const comp = part.competitionId;
-    if (!comp) continue;
+  for (const act of allActivities) {
+    totalScore += act.score ?? 0;
+    if (act.score === 10) totalGolden++;
+    else if (act.score === 5) totalSilver++;
+    else if (act.score === 2) totalBronze++;
+  }
 
-    // init if new competition
-    if (!compMap[comp._id.toString()]) {
-      compMap[comp._id.toString()] = {
-        name: comp.name,
-        participantCount: 0,
-        totalScore: 0,
-        medals: {
-          golden: 0,
-          silver: 0,
-          bronze: 0,
-        },
-      };
-    }
+  let totalWins = 0;
+  let totalLosses = 0;
+  const participantIdSet = new Set(participantIds.map((id) => id.toString()));
 
-    // count this participant
-    compMap[comp._id.toString()].participantCount++;
+  for (const match of allMatches) {
+    const winnerId = match.winner.toString();
+    const isWinnerInClub = participantIdSet.has(winnerId);
 
-    // get scores from rankingActivity
-    const activities = await models.rankingActivity
-      .find({ userId: part.userId })
-      .lean();
+    const p1InClub =
+      match.playerOne && participantIdSet.has(match.playerOne.toString());
+    const p2InClub =
+      match.playerTwo && participantIdSet.has(match.playerTwo.toString());
 
-    const matches = await models.match
-      .find({
-        $or: [{ playerOne: part._id }, { playerTwo: part._id }],
-        winner: { $exists: true },
-      })
-      .lean();
-
-    for (const match of matches) {
-      if (match.winner.toString() === part._id.toString()) {
-        totalWins++;
+    if (p1InClub || p2InClub) {
+      if (isWinnerInClub) {
+        if (p1InClub && winnerId === match.playerOne.toString()) {
+          totalWins++;
+        } else if (p2InClub && winnerId === match.playerTwo.toString()) {
+          totalWins++;
+        }
       } else {
-        totalLosses++;
-      }
-    }
-
-    for (const act of activities) {
-      compMap[comp._id.toString()].totalScore += act.score;
-      totalScore += act.score;
-
-      // count medals
-      if (act.score === 10) {
-        compMap[comp._id.toString()].medals.golden++;
-        totalGolden++;
-      } else if (act.score === 5) {
-        compMap[comp._id.toString()].medals.silver++;
-        totalSilver++;
-      } else if (act.score === 2) {
-        compMap[comp._id.toString()].medals.bronze++;
-        totalBronze++;
+        if (p1InClub) totalLosses++;
+        if (p2InClub) totalLosses++;
       }
     }
   }
 
-  const competitions = Object.values(compMap);
+  const compMap = {};
+
+  const activitiesByComp = new Map();
+  for (const act of allActivities) {
+    if (!act.competitionId) continue;
+
+    const compId = act.competitionId.toString();
+    if (!activitiesByComp.has(compId)) {
+      activitiesByComp.set(compId, []);
+    }
+
+    activitiesByComp.get(compId).push(act);
+  }
+
+  for (const part of participants) {
+    const comp = part.competitionId;
+    if (!comp) continue;
+
+    const compId = comp._id.toString();
+    if (!compMap[compId]) {
+      compMap[compId] = {
+        name: comp.name,
+        participantCount: 0,
+        totalScore: 0,
+        medals: { golden: 0, silver: 0, bronze: 0 },
+      };
+    }
+    compMap[compId].participantCount++;
+  }
+
+  for (const [compId, compActivities] of activitiesByComp.entries()) {
+    if (compMap[compId]) {
+      for (const act of compActivities) {
+        compMap[compId].totalScore += act.score ?? 0;
+        if (act.score === 10) compMap[compId].medals.golden++;
+        else if (act.score === 5) compMap[compId].medals.silver++;
+        else if (act.score === 2) compMap[compId].medals.bronze++;
+      }
+    }
+  }
 
   res.status(200).json({
     success: true,
     data: {
       club: theClub,
-      totalScore,
+      totalScore: totalScore,
       stats: {
         wins: totalWins,
         losses: totalLosses,
@@ -404,7 +429,7 @@ exports.getClubRankingDetail = asyncHandler(async (req, res, next) => {
         silver: totalSilver,
         bronze: totalBronze,
       },
-      competitions,
+      competitions: Object.values(compMap),
     },
   });
 });
